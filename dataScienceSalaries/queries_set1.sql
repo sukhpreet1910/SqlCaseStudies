@@ -216,3 +216,73 @@ WHERE (company_location = 'AU' OR company_location ='US')AND salary_in_usd > 900
 
 SELECT * from camp
 where company_location in ('AU', 'US') AND salary_in_usd > 90000
+
+
+/* 8. In year 2024, due to increase demand in data industry , there was  increase in salaries of data field employees.
+                   Entry Level-35%  of the salary.
+                   Mid junior – 30% of the salary.
+                   Immediate senior level- 22% of the salary.
+                   Expert level- 20% of the salary.
+                   Director – 15% of the salary.
+you have to update the salaries accordingly and update it back in the original database. */
+
+
+UPDATE camp
+SET salary_in_usd = 
+    CASE 
+        WHEN experience_level = 'EN' THEN salary_in_usd * 1.35  -- Increase salary for Entry Level by 35%
+        WHEN experience_level = 'MI' THEN salary_in_usd * 1.30  -- Increase salary for Mid Junior by 30%
+        WHEN experience_level = 'SE' THEN salary_in_usd * 1.22  -- Increase salary for Immediate Senior Level by 22%
+        WHEN experience_level = 'EX' THEN salary_in_usd * 1.20  -- Increase salary for Expert Level by 20%
+        WHEN experience_level = 'DX' THEN salary_in_usd * 1.15  -- Increase salary for Director by 15%
+        ELSE salary_in_usd  -- Keep salary unchanged for other experience levels
+    END
+WHERE work_year = 2024;  -- Update salaries only for the year 2024
+
+
+/*9. You are a researcher and you have been assigned the task to Find the year with the highest average salary for each job title.*/
+
+with average as 
+(
+    SELECT
+        work_year,
+        job_title, 
+        round(avg(salary_IN_usd)) as avg_salary
+    FROM
+        salaries
+    GROUP BY
+        work_year, job_title
+)
+
+SELECT work_year, job_title, avg_salary
+    FROM
+(
+    SELECT 
+        *, 
+        rank() over(PARTITION by job_title ORDER BY avg_salary DESC) as rn
+    FROM
+        average
+)
+where rn = 1
+
+
+/*
+10. You have been hired by a market research agency where you been assigned the task 
+to show the percentage of different employment type (full time, part time) in 
+Different job roles, in the format where each row will be job title, 
+each column will be type of employment type and  cell value  for that row and column will show the % value
+*/
+
+
+SELECT
+    job_title,
+    ROUND((sum(CASE when employment_type = 'PT' then 1 else 0 end) / count(*)) * 100, 2 ) as pt_percentage,
+    ROUND((sum(CASE when employment_type = 'FT' then 1 else 0 end) / count(*)) * 100, 2 ) as ft_percentage,
+    ROUND((sum(CASE when employment_type = 'CT' then 1 else 0 end) / count(*)) * 100, 2 ) as ct_percentage,
+    ROUND((sum(CASE when employment_type = 'FL' then 1 else 0 end) / count(*)) * 100, 2 ) as fl_percentage
+FROM
+    salaries
+GROUP by job_title
+
+
+
