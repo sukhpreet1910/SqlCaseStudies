@@ -121,9 +121,6 @@ $$ LANGUAGE plpgsql;
 SELECT * FROM GetSeniorSalaryStats();
 
 
-
-
-
 /*
 5. 
 You're a Financial analyst Working for a leading HR Consultancy,
